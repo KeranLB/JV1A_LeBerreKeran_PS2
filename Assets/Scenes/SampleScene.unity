@@ -1010,7 +1010,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rgbd: {fileID: 1561986987}
-  moveSpeed: 8
+  horizontal: 0
+  jump: 0
+  jumpForce: 250
+  moveSpeed: 10
 --- !u!1 &1842203269
 GameObject:
   m_ObjectHideFlags: 0
