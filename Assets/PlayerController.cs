@@ -8,6 +8,8 @@ public class PlayerController : MonoBehaviour
     public DistanceJoint2D _distanceJoint;
     */
 
+    public bool isGrabing;
+
     public GameObject grappin;
     public DistanceJoint2D _distanceJoint;
     public float grappinSpeed;
@@ -19,6 +21,7 @@ public class PlayerController : MonoBehaviour
     {
         _distanceJoint.enabled = false;
         line.enabled = false;
+        isGrabing = false;
     }
 
     // Update is called once per frame
@@ -48,11 +51,16 @@ public class PlayerController : MonoBehaviour
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Direction = mousePos - (Vector2)transform.position;
         ShootPoint.right = Direction;
-        if (Input.GetMouseButtonDown(0))
+        if ((Input.GetMouseButtonDown(0)) && (isGrabing == false))
         {
+            isGrabing = true;
             GameObject grappinIns = Instantiate(grappin, ShootPoint.position, Quaternion.identity);
             grappinIns.GetComponent<Rigidbody2D>().velocity = Direction * grappinSpeed;
             grappinIns.transform.Rotate(0.0f, 0.0f, Mathf.Atan2(Direction.y, Direction.x) * Mathf.Rad2Deg);
+        }
+        else if ((Input.GetMouseButtonDown(0)) && (isGrabing == true))
+        {
+            float tmp = _distanceJoint.distance;
         }
         if (target != null)
         {

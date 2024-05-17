@@ -6,6 +6,8 @@ public class move : MonoBehaviour
     public Rigidbody2D rgbd;
     public float horizontal;
     public bool jump;
+    public bool isGrabing;
+    public bool isJumping;
     public int jumpForce;
     #region rewired
     private Player player;
@@ -14,11 +16,12 @@ public class move : MonoBehaviour
     #region Move
     private Vector2 movement;
     public int moveSpeed;
-    public Input space;
     #endregion
     private void Start()
     {
         jump = false;
+        isJumping = true;
+        isGrabing = false;
     }
     private void Update()
     {
@@ -32,7 +35,10 @@ public class move : MonoBehaviour
         rgbd.AddForce(movement);
         */
         horizontal = Input.GetAxis("Horizontal");
-        jump = Input.GetButtonDown("Jump");
+        if ( (isJumping == false) && (Input.GetButtonDown("Jump")))
+        {
+            jump = true;
+        }
         /*
         if (Input.GetAxis("Horizontal") > 0.1f)
         {
@@ -48,10 +54,20 @@ public class move : MonoBehaviour
     private void FixedUpdate()
     {
         rgbd.velocity = new Vector2(horizontal * moveSpeed, rgbd.velocity.y);
-        if (jump == true)
+        
+        if (jump)
         {
-            rgbd.AddForce(new Vector2(rgbd.velocity.x, jumpForce));
+            rgbd.AddForce(Vector2.up * jumpForce);
             jump = false;
+            isJumping = true;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Ground"))
+        {
+            isJumping = false;
         }
     }
 }
