@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -8,6 +9,21 @@ public class PlayerController : MonoBehaviour
     public DistanceJoint2D _distanceJoint;
     */
 
+    [SerializeField] LayerMask grapplableMask;
+    [SerializeField] float maxDistance = 10f;
+    [SerializeField] float grappleSpeed = 10f;
+    [SerializeField] float grappleShootSpeed = 20f;
+    [SerializeField] GameObject Grab;
+    [SerializeField] GameObject Body;
+
+    [HideInInspector] Rigidbody2D rgbd;
+    [HideInInspector] Vector2 PointGrab;
+    [HideInInspector] bool isGrappling = false;
+    [HideInInspector] bool grabLaunch = false;
+    [HideInInspector] public bool retracting = false;
+
+    Vector2 target;
+
     public bool isGrabing;
 
     public GameObject grappin;
@@ -16,7 +32,7 @@ public class PlayerController : MonoBehaviour
     public LineRenderer line; 
     public Transform ShootPoint;
     Vector2 Direction;
-    GameObject target;
+    GameObject Target;
     void Start()
     {
         _distanceJoint.enabled = false;
@@ -62,17 +78,58 @@ public class PlayerController : MonoBehaviour
         {
             float tmp = _distanceJoint.distance;
         }
-        if (target != null)
+        if (Target != null)
         {
             line.SetPosition(0, ShootPoint.position);
-            line.SetPosition(1, target.transform.position);
+            line.SetPosition(1, Target.transform.position);
 
         }
     }
     public void TargetHit(GameObject hit)
     {
-        target = hit;
+        Target = hit;
         line.enabled = true;
         _distanceJoint.enabled = true;
+
+        
+    }
+
+
+
+
+
+
+
+
+
+
+
+    IEnumerator Retract()
+    {
+        rgbd.gravityScale = 1;
+        float t = 0;
+        float time = 10;
+
+        line.SetPosition(0, PointGrab);
+        line.SetPosition(1, target);
+
+        Vector2 newPos;
+
+        for (; t < time; t += grappleShootSpeed * Time.deltaTime)
+        {
+            newPos = Vector2.Lerp(PointGrab, target, t / time);
+            line.SetPosition(0, newPos);
+            line.SetPosition(1, target);
+            //distanceJoint.anchor = newPos;
+            yield return null;
+        }
+
+        line.SetPosition(0, target);
+        Grab.transform.position = PointGrab;
+        retracting = false;
+        isGrappling = false;
+        line.enabled = false;
+        grabLaunch = false;
     }
 }
+
