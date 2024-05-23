@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Rewired;
 
-public class testgrappin : MonoBehaviour
+public class LeftGrab : MonoBehaviour
 {
     #region rewired
     private Player player;
@@ -19,9 +19,10 @@ public class testgrappin : MonoBehaviour
     [SerializeField] float grappleShootSpeed = 20f;
     [SerializeField] GameObject Grab;
     [SerializeField] GameObject Body;
-
+    [SerializeField] GameObject EmptyBody;
+     
     [HideInInspector] Rigidbody2D rgbd;
-    [HideInInspector]     move Move;
+    [HideInInspector] move Move;
     [HideInInspector] Vector2 PointGrab;
     [HideInInspector] bool isGrappling = false;
     [HideInInspector] bool isRetracting = false;
@@ -31,12 +32,12 @@ public class testgrappin : MonoBehaviour
 
     Vector2 target;
 
-    private void Start()
+    void Start()
     {
         player = ReInput.players.GetPlayer(playerId);
 
         line = GetComponent<LineRenderer>();
-        distanceJoint = Body.GetComponent<DistanceJoint2D>();
+        distanceJoint = EmptyBody.GetComponent<DistanceJoint2D>();
         rgbd = Body.GetComponent<Rigidbody2D>();
         Move = Body.GetComponent<move>();
 
@@ -45,41 +46,41 @@ public class testgrappin : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    void Update()
     {
-        GrabPosition();
-        Inputs();
+        LeftGrabPosition();
+        LeftGrabInputs();
     }
 
-    private void Inputs()
+    private void LeftGrabInputs()
     {
-        if ((Input.GetMouseButtonDown(0)) && (!isGrappling))
+        if ((player.GetButtonDown("FireLeft")) && (!isGrappling))
         {
-            StartGrapple();
+            StartLeftGrapple();
         }
 
-        else if ((Input.GetMouseButtonDown(0)) && (isGrappling) && (!isCanceling) && (grabLaunch))
+        else if ((player.GetButtonDown("FireLeft")) && (isGrappling) && (!isCanceling) && (grabLaunch))
         {
-            StartCoroutine(Retract());
+            StartCoroutine(RetractLeftGrab());
         }
 
-        else if ((Input.GetMouseButtonDown(1)) && (isGrappling) && (!isRetracting) && (grabLaunch))
+        else if ((player.GetButtonDown("CancelLeft")) && (isGrappling) && (!isRetracting) && (grabLaunch))
         {
-            StartCoroutine(CancelGrab());
+            StartCoroutine(CancelLeftGrab());
         }
     }
 
-    private void GrabPosition()
+    private void LeftGrabPosition()
     {
-        transform.position = new Vector2(Body.transform.position.x + 0.5f, Body.transform.position.y + 0.03f);
+        transform.position = new Vector2(EmptyBody.transform.position.x - 0.5f, EmptyBody.transform.position.y + 0.03f);
 
-        PointGrab = new Vector2(transform.position.x + 0.35f, transform.position.y);
+        PointGrab = new Vector2(transform.position.x - 0.35f, transform.position.y);
 
-        if ( (distanceGrappin > Mathf.Sqrt((PointGrab.x - target.x) * (PointGrab.x - target.x) + (PointGrab.y - target.y) * (PointGrab.y - target.y))) && (Move.isGrounded))
+        if ((distanceGrappin > Mathf.Sqrt((PointGrab.x - target.x) * (PointGrab.x - target.x) + (PointGrab.y - target.y) * (PointGrab.y - target.y))) && (Move.isGrounded))
         {
-            distanceJoint.anchor = new Vector2(0.5f, 0.03f);
+            distanceJoint.anchor = new Vector2(-0.5f, 0.03f);
             distanceGrappin = distanceJoint.distance;
-            
+
         }
 
         if (isGrappling)
@@ -98,7 +99,7 @@ public class testgrappin : MonoBehaviour
         }
     }
 
-    private void StartGrapple()
+    private void StartLeftGrapple()
     {
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
@@ -111,11 +112,11 @@ public class testgrappin : MonoBehaviour
             line.enabled = true;
             line.positionCount = 2;
 
-            StartCoroutine(Grapple());
+            StartCoroutine(LeftGrapple());
         }
     }
 
-    IEnumerator Grapple()
+    IEnumerator LeftGrapple()
     {
         float t = 0;
         float time = 10;
@@ -142,7 +143,7 @@ public class testgrappin : MonoBehaviour
         grabLaunch = true;
     }
 
-    IEnumerator Retract()
+    IEnumerator RetractLeftGrab()
     {
         isRetracting = true;
         distanceJoint.enabled = false;
@@ -160,8 +161,8 @@ public class testgrappin : MonoBehaviour
             newPos = Vector2.Lerp(PointGrab, target, t / time);
             line.SetPosition(0, newPos);
             line.SetPosition(1, target);
-            transform.position = new Vector2(newPos.x - 0.35f, newPos.y);
-            Body.transform.position = new Vector2(transform.position.x - 0.5f, transform.position.y - 0.03f);
+            transform.position = new Vector2(newPos.x + 0.35f, newPos.y);
+            Body.transform.position = new Vector2(transform.position.x + 0.5f, transform.position.y - 0.03f);
             yield return null;
         }
 
@@ -174,7 +175,7 @@ public class testgrappin : MonoBehaviour
         isRetracting = false;
     }
 
-    IEnumerator CancelGrab()
+    IEnumerator CancelLeftGrab()
     {
         isCanceling = true;
         distanceJoint.enabled = false;

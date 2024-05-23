@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Grappin : MonoBehaviour
 {
-
+    /*
     PlayerController control;
     public Rigidbody2D rgbd;
     Vector3 position;
@@ -30,4 +30,5 @@ public class Grappin : MonoBehaviour
             rgbd.velocity = new Vector2(0f, 0f);
         }
     }
+    */
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Rewired;
 
-public class testgrappin : MonoBehaviour
+public class RightGrab : MonoBehaviour
 {
     #region rewired
     private Player player;
@@ -21,7 +21,7 @@ public class testgrappin : MonoBehaviour
     [SerializeField] GameObject Body;
 
     [HideInInspector] Rigidbody2D rgbd;
-    [HideInInspector]     move Move;
+    [HideInInspector] move Move;
     [HideInInspector] Vector2 PointGrab;
     [HideInInspector] bool isGrappling = false;
     [HideInInspector] bool isRetracting = false;
@@ -47,39 +47,39 @@ public class testgrappin : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        GrabPosition();
-        Inputs();
+        RightGrabPosition();
+        RightGrabInputs();
     }
 
-    private void Inputs()
+    private void RightGrabInputs()
     {
-        if ((Input.GetMouseButtonDown(0)) && (!isGrappling))
+        if ((player.GetButtonDown("FireRight")) && (!isGrappling))
         {
-            StartGrapple();
+            StartRightGrapple();
         }
 
-        else if ((Input.GetMouseButtonDown(0)) && (isGrappling) && (!isCanceling) && (grabLaunch))
+        else if ((player.GetButtonDown("FireRight")) && (isGrappling) && (!isCanceling) && (grabLaunch))
         {
-            StartCoroutine(Retract());
+            StartCoroutine(RetractRightGrab());
         }
 
-        else if ((Input.GetMouseButtonDown(1)) && (isGrappling) && (!isRetracting) && (grabLaunch))
+        else if ((player.GetButtonDown("CancelRight")) && (isGrappling) && (!isRetracting) && (grabLaunch))
         {
-            StartCoroutine(CancelGrab());
+            StartCoroutine(CancelRightGrab());
         }
     }
 
-    private void GrabPosition()
+    private void RightGrabPosition()
     {
         transform.position = new Vector2(Body.transform.position.x + 0.5f, Body.transform.position.y + 0.03f);
 
         PointGrab = new Vector2(transform.position.x + 0.35f, transform.position.y);
 
-        if ( (distanceGrappin > Mathf.Sqrt((PointGrab.x - target.x) * (PointGrab.x - target.x) + (PointGrab.y - target.y) * (PointGrab.y - target.y))) && (Move.isGrounded))
+        if ((distanceGrappin > Mathf.Sqrt((PointGrab.x - target.x) * (PointGrab.x - target.x) + (PointGrab.y - target.y) * (PointGrab.y - target.y))) && (Move.isGrounded))
         {
             distanceJoint.anchor = new Vector2(0.5f, 0.03f);
             distanceGrappin = distanceJoint.distance;
-            
+
         }
 
         if (isGrappling)
@@ -98,7 +98,7 @@ public class testgrappin : MonoBehaviour
         }
     }
 
-    private void StartGrapple()
+    private void StartRightGrapple()
     {
         Vector2 direction = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
 
@@ -111,11 +111,11 @@ public class testgrappin : MonoBehaviour
             line.enabled = true;
             line.positionCount = 2;
 
-            StartCoroutine(Grapple());
+            StartCoroutine(RightGrapple());
         }
     }
 
-    IEnumerator Grapple()
+    IEnumerator RightGrapple()
     {
         float t = 0;
         float time = 10;
@@ -142,7 +142,7 @@ public class testgrappin : MonoBehaviour
         grabLaunch = true;
     }
 
-    IEnumerator Retract()
+    IEnumerator RetractRightGrab()
     {
         isRetracting = true;
         distanceJoint.enabled = false;
@@ -174,7 +174,7 @@ public class testgrappin : MonoBehaviour
         isRetracting = false;
     }
 
-    IEnumerator CancelGrab()
+    IEnumerator CancelRightGrab()
     {
         isCanceling = true;
         distanceJoint.enabled = false;
@@ -204,3 +204,4 @@ public class testgrappin : MonoBehaviour
         isCanceling = false;
     }
 }
+
