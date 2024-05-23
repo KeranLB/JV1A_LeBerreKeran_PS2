@@ -11,14 +11,14 @@ public class move : MonoBehaviour
     public Rigidbody2D rgbd;
     public float horizontal;
     public bool jump;
-    public bool isJumping;
+    public bool isGrounded;
     public int jumpForce;
     public int moveSpeed;
 
     private void Start()
     {
+        player = ReInput.players.GetPlayer(playerId);
         jump = false;
-        isJumping = true;
     }
 
     private void Update()
@@ -34,14 +34,13 @@ public class move : MonoBehaviour
         {
             rgbd.AddForce(Vector2.up * jumpForce);
             jump = false;
-            isJumping = true;
         }
     }
 
     private void Inputs()
     {
-        horizontal = Input.GetAxis("Horizontal");
-        if ((isJumping == false) && (Input.GetButtonDown("Jump")))
+        horizontal = player.GetAxis("Horizontal");
+        if ((isGrounded == true) && (player.GetButtonDown("Jump")))
         {
             jump = true;
         }
@@ -51,7 +50,15 @@ public class move : MonoBehaviour
     {
         if (collision.CompareTag("Ground"))
         {
-            isJumping = false;
+            isGrounded = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Ground"))
+        {
+            isGrounded = false;
         }
     }
 }

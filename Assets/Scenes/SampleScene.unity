@@ -426,9 +426,18 @@ MonoBehaviour:
       _name: Player0
       _descriptiveName: Player0
       _startPlaying: 1
-      _defaultJoystickMaps: []
-      _defaultMouseMaps: []
-      _defaultKeyboardMaps: []
+      _defaultJoystickMaps:
+      - _enabled: 1
+        _categoryId: 0
+        _layoutId: 0
+      _defaultMouseMaps:
+      - _enabled: 1
+        _categoryId: 0
+        _layoutId: 0
+      _defaultKeyboardMaps:
+      - _enabled: 1
+        _categoryId: 0
+        _layoutId: 0
       _defaultCustomControllerMaps: []
       _startingCustomControllers: []
       _assignMouseOnStart: 1
@@ -1355,7 +1364,7 @@ DistanceJoint2D:
   m_GameObject: {fileID: 1561986982}
   m_Enabled: 0
   serializedVersion: 4
-  m_EnableCollision: 1
+  m_EnableCollision: 0
   m_ConnectedRigidBody: {fileID: 0}
   m_BreakForce: Infinity
   m_BreakTorque: Infinity
@@ -1365,7 +1374,7 @@ DistanceJoint2D:
   m_ConnectedAnchor: {x: 0, y: 0}
   m_AutoConfigureDistance: 1
   m_Distance: 0.005
-  m_MaxDistanceOnly: 0
+  m_MaxDistanceOnly: 1
 --- !u!50 &1561986987
 Rigidbody2D:
   serializedVersion: 4
@@ -1443,7 +1452,7 @@ MonoBehaviour:
   rgbd: {fileID: 1561986987}
   horizontal: 0
   jump: 0
-  isJumping: 0
+  isGrounded: 0
   jumpForce: 250
   moveSpeed: 10
 --- !u!1 &1842203269
@@ -1459,8 +1468,6 @@ GameObject:
   - component: {fileID: 1842203271}
   - component: {fileID: 1842203273}
   - component: {fileID: 1842203272}
-  - component: {fileID: 1842203276}
-  - component: {fileID: 1842203275}
   m_Layer: 0
   m_Name: grappinDroite
   m_TagString: Untagged
@@ -1570,7 +1577,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.19918633
+        value: 0.15133476
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -1633,6 +1640,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 603346c2dda6a114eb37e3b5f036b9ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  distanceGrappin: 20
   grapplableMask:
     serializedVersion: 2
     m_Bits: 8
@@ -1641,7 +1649,6 @@ MonoBehaviour:
   grappleShootSpeed: 20
   Grab: {fileID: 2056076724}
   Body: {fileID: 1561986982}
-  retracting: 0
 --- !u!212 &1842203274
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1694,53 +1701,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!232 &1842203275
-DistanceJoint2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1842203269}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_EnableCollision: 1
-  m_ConnectedRigidBody: {fileID: 1842203276}
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_BreakAction: 1
-  m_AutoConfigureConnectedAnchor: 0
-  m_Anchor: {x: 0, y: -0.85}
-  m_ConnectedAnchor: {x: 0, y: 0}
-  m_AutoConfigureDistance: 1
-  m_Distance: 0.3090601
-  m_MaxDistanceOnly: 0
---- !u!50 &1842203276
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1842203269}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 0.0001
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
 --- !u!1 &2056076724
 GameObject:
   m_ObjectHideFlags: 0
