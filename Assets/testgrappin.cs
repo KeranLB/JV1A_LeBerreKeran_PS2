@@ -21,7 +21,7 @@ public class testgrappin : MonoBehaviour
     [SerializeField] GameObject Body;
 
     [HideInInspector] Rigidbody2D rgbd;
-    [HideInInspector]     move Move;
+    [HideInInspector] move Move;
     [HideInInspector] Vector2 PointGrab;
     [HideInInspector] bool isGrappling = false;
     [HideInInspector] bool isRetracting = false;
