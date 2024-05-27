@@ -3,10 +3,9 @@ using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
-    
+    /*
     public Camera mainCamera;
     public LineRenderer _linerRenderer;
-    public DistanceJoint2D _distanceJoint;
 
     [SerializeField] LayerMask grapplableMask;
     [SerializeField] float maxDistance = 10f;
@@ -61,7 +60,7 @@ public class PlayerController : MonoBehaviour
         {
             _linerRenderer.SetPosition(1, transform.position);
         }
-        */
+        
 
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Direction = mousePos - (Vector2)transform.position;
@@ -130,5 +129,6 @@ public class PlayerController : MonoBehaviour
         line.enabled = false;
         grabLaunch = false;
     }
+   */
 }
 

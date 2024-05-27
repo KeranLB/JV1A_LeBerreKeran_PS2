@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
+using UnityEngine.UI;
 
 public class Grappin : MonoBehaviour
 {
@@ -11,28 +12,31 @@ public class Grappin : MonoBehaviour
     #endregion
 
     #region Objet/Component
-    [SerializeField] GameObject Body;
+    [SerializeField] public GameObject Body;
     [SerializeField] GameObject Grab;
-    [SerializeField] GameObject Aim;
+    //[SerializeField] GameObject Aim;
     [HideInInspector] LineRenderer line;
     [HideInInspector] DistanceJoint2D distanceJoint;
     [HideInInspector] Rigidbody2D rgbd;
+    [HideInInspector] Rigidbody2D GrabRgbd;
     [HideInInspector] move move;
     [HideInInspector] PrefabGrappin prefab;
     #endregion
 
     #region parametreGrab
     [SerializeField] float maxDistance = 10f;
-    [SerializeField] float grappleSpeed = 10f;
+    //[SerializeField] float grappleSpeed = 10f;
     [SerializeField] float grappleShootSpeed = 20f;
-    [SerializeField] Vector2 GrabPosition;
+    [SerializeField] Transform GrabPosition;
+    [HideInInspector] Vector2 direction;
+    [HideInInspector] Vector2 mousePos;
     #endregion
 
     #region conditions
-    [HideInInspector] bool isGrabling = false;
-    [HideInInspector] bool isRetracting = false;
-    [HideInInspector] bool isCanceling = false;
-    [HideInInspector] bool isLaunched = false;
+    public bool isGrabling = false;
+    public bool isRetracting = false;
+    public bool isCanceling = false;
+    public bool isLaunched = false;
     #endregion
 
     // Start is called before the first frame update
@@ -45,19 +49,26 @@ public class Grappin : MonoBehaviour
         rgbd = Body.GetComponent<Rigidbody2D>();
         move = Body.GetComponent<move>();
         prefab = Grab.GetComponent<PrefabGrappin>();
+        GrabRgbd = Grab.GetComponent<Rigidbody2D>();
 
         line.enabled = false;
+        line.positionCount = 2;
         distanceJoint.enabled = false;
+        distanceJoint.anchor = new Vector2(0.5f,0.0f);
     }
 
     // Update is called once per frame
     void Update()
     {
         Inputs();
-        SetLinePosition();
+        DirectionGrappin();
         if (isGrabling)
         {
-            SetDistanceJointPosition();
+            SetLinePosition();
+        }
+        if (isLaunched)
+        {
+            MaxDistance();
         }
         if (isRetracting)
         {
@@ -67,65 +78,108 @@ public class Grappin : MonoBehaviour
 
     private void SetLinePosition()
     {
-        line.SetPosition(0, GrabPosition);
+        line.SetPosition(0, GrabPosition.position);
         line.SetPosition(1, Grab.transform.position);
     }
 
-    private void SetDistanceJointPosition()
+    public void SetDistanceJointPosition(Vector2 PositionB)
     {
         distanceJoint.enabled = true;
-        distanceJoint.anchor = GrabPosition;
-        distanceJoint.connectedAnchor = Grab.transform.position;
+        distanceJoint.connectedAnchor = PositionB;
     }
-    private void Inputs()
+
+private void Inputs()
     {
+        // lance le grappin quand il est ranger
         if ((!isGrabling) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
         {
-            isLaunched = true;
-            isGrabling = true;
             StartGrable();
         }
 
-        else if ((isGrabling) && (isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
+        // retract le grappin petit a petit tant que la touche est pressé
+        else if ((isGrabling) && (!isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
         {
             isRetracting = true;
         }
-        else if ((isGrabling) && (isLaunched) && (player.GetButtonUp("Fire")) && (isRetracting) && (!isCanceling))
+        else if ((isGrabling) && (!isLaunched) && (player.GetButtonUp("Fire")) && (isRetracting) && (!isCanceling))
         {
             isRetracting = false;
         }
 
-        else if ((isGrabling) && (isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
+        // Rappel le grapin
+        else if ((isGrabling) && (!isLaunched) && (player.GetButtonDown("Cancel")) && (!isRetracting) && (!isCanceling))
         {
-            Cancel();
+            StartCoroutine(Cancel());
         }
     }
 
+    private void DirectionGrappin() 
+    {
+        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        direction = mousePos - (Vector2)transform.position;
+        gameObject.transform.right = direction;
+    }
     private void StartGrable()
     {
-        Vector2 direction = Aim.transform.position - transform.position;
+        isLaunched = true;
+        isGrabling = true;
+        line.enabled = true;
 
-        GameObject grappinIns = Instantiate(Grab, GrabPosition, Quaternion.identity);
-        grappinIns.GetComponent<Rigidbody2D>().velocity = direction * grappleShootSpeed;
-        grappinIns.transform.Rotate(0.0f, 0.0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+        //Vector2 direction = Aim.transform.position - transform.position;
 
-        float distance = Mathf.Sqrt((GrabPosition.x - Grab.transform.position.x) * (GrabPosition.x - Grab.transform.position.x) + (GrabPosition.y - Grab.transform.position.y) * (GrabPosition.y - Grab.transform.position.y));
+        Grab.transform.Rotate(0.0f, 0.0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
+        GrabRgbd.velocity = direction * grappleShootSpeed;
+        
 
-        StartCoroutine(Grable());
+
     }
-    IEnumerator Grable()
+
+    private void MaxDistance()
     {
-        yield return null;
+        float distance = Mathf.Sqrt((GrabPosition.position.x - Grab.transform.position.x) * (GrabPosition.position.x - Grab.transform.position.x) + (GrabPosition.position.y - Grab.transform.position.y) * (GrabPosition.position.y - Grab.transform.position.y));
+
+        if (distance > maxDistance) 
+        {
+            isLaunched = false;
+            StartCoroutine(Cancel());
+        }
     }
 
     IEnumerator Cancel()
     {
+        isCanceling = true;
+        prefab.isGrabing = false;
+        distanceJoint.enabled = false;
+        rgbd.gravityScale = 1;
+        float t = 0;
+        float time = 10;
+
+        Vector2 newPos;
+
+        for (; t < time; t += grappleShootSpeed * Time.deltaTime)
+        {
+            newPos = Vector2.Lerp(Grab.transform.position, GrabPosition.position, t / time);
+            Grab.transform.position = newPos;
+            SetLinePosition();
+            yield return null;
+        }
+
+        line.enabled = false;
+        isCanceling = false;
         isGrabling = false;
-        yield return null;
     }
 
     private void Retract()
     {
-
+        if (prefab.moveObject) 
+        {
+            Vector2 direction = distanceJoint.anchor - distanceJoint.connectedAnchor;
+            prefab.objectGrabedRgbd.velocity = direction;
+        }
+        else 
+        {
+            Vector2 direction = distanceJoint.connectedAnchor - distanceJoint.anchor;
+            rgbd.velocity = direction;
+        }
     }
 }
