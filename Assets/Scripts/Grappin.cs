@@ -13,12 +13,13 @@ public class Grappin : MonoBehaviour
 
     #region Objet/Component
     [SerializeField] public GameObject Body;
-    [SerializeField] GameObject Grab;
+    [SerializeField] public GameObject Grab;
     //[SerializeField] GameObject Aim;
     [HideInInspector] LineRenderer line;
-    [HideInInspector] DistanceJoint2D distanceJoint;
+    [HideInInspector] public DistanceJoint2D distanceJoint;
+    [HideInInspector] public SpringJoint2D spring;
     [HideInInspector] Rigidbody2D rgbd;
-    [HideInInspector] Rigidbody2D GrabRgbd;
+    [HideInInspector] public Rigidbody2D GrabRgbd;
     [HideInInspector] move move;
     [HideInInspector] PrefabGrappin prefab;
     #endregion
@@ -44,17 +45,27 @@ public class Grappin : MonoBehaviour
     {
         player = ReInput.players.GetPlayer(playerId);
 
-        line = gameObject.GetComponent<LineRenderer>();
-        distanceJoint = Body.GetComponent<DistanceJoint2D>();
         rgbd = Body.GetComponent<Rigidbody2D>();
         move = Body.GetComponent<move>();
         prefab = Grab.GetComponent<PrefabGrappin>();
         GrabRgbd = Grab.GetComponent<Rigidbody2D>();
 
+        line = gameObject.GetComponent<LineRenderer>();
         line.enabled = false;
         line.positionCount = 2;
+
+        distanceJoint = Body.GetComponent<DistanceJoint2D>();
         distanceJoint.enabled = false;
         distanceJoint.anchor = new Vector2(0.5f,0.0f);
+        distanceJoint.connectedBody = GrabRgbd;
+        distanceJoint.connectedAnchor = new Vector2(.0f, 0.0f);
+
+        spring = Body.GetComponent<SpringJoint2D>();
+        spring.enabled = false;
+        spring.connectedAnchor = new Vector2(0.0f, 0.0f);
+        spring.connectedBody = GrabRgbd;
+        spring.distance = 0.0f;
+        spring.anchor = new Vector2(0.5f, 0.0f);
     }
 
     // Update is called once per frame
@@ -82,12 +93,13 @@ public class Grappin : MonoBehaviour
         line.SetPosition(1, Grab.transform.position);
     }
 
+    /*
     public void SetDistanceJointPosition(Vector2 PositionB)
     {
-        distanceJoint.enabled = true;
         distanceJoint.connectedAnchor = PositionB;
+        distanceJoint.enabled = true;       
     }
-
+    */
 private void Inputs()
     {
         // lance le grappin quand il est ranger
@@ -99,11 +111,16 @@ private void Inputs()
         // retract le grappin petit a petit tant que la touche est pressé
         else if ((isGrabling) && (!isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
         {
+            spring.enabled = true;
             isRetracting = true;
+            
+            //distanceJoint.enabled = false;
         }
         else if ((isGrabling) && (!isLaunched) && (player.GetButtonUp("Fire")) && (isRetracting) && (!isCanceling))
         {
             isRetracting = false;
+            spring.enabled = false;
+            //rgbd.bodyType = RigidbodyType2D.Dynamic;
         }
 
         // Rappel le grapin
@@ -129,9 +146,7 @@ private void Inputs()
 
         Grab.transform.Rotate(0.0f, 0.0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
         GrabRgbd.velocity = direction * grappleShootSpeed;
-        
-
-
+        Debug.Log("Start");
     }
 
     private void MaxDistance()
@@ -147,12 +162,28 @@ private void Inputs()
 
     IEnumerator Cancel()
     {
+        if (prefab.moveObject)
+        {
+            Grab.transform.position = spring.anchor;
+            Grab.SetActive(true);
+            spring.connectedBody = GrabRgbd;
+            distanceJoint.connectedBody = GrabRgbd;
+        }
+        else
+        {
+            GrabRgbd.bodyType = RigidbodyType2D.Dynamic;
+            Grab.transform.SetParent(null);
+        }
+
         isCanceling = true;
         prefab.isGrabing = false;
         distanceJoint.enabled = false;
+        spring.enabled = false;
         rgbd.gravityScale = 1;
+
+
         float t = 0;
-        float time = 10;
+        float time = 3;
 
         Vector2 newPos;
 
@@ -167,19 +198,18 @@ private void Inputs()
         line.enabled = false;
         isCanceling = false;
         isGrabling = false;
+        Debug.Log("Cancel");
     }
 
     private void Retract()
     {
-        if (prefab.moveObject) 
+        if (prefab.moveObject)
         {
-            Vector2 direction = distanceJoint.anchor - distanceJoint.connectedAnchor;
-            prefab.objectGrabedRgbd.velocity = direction;
+            if (move.isGrounded)
+            {
+                //rgbd.bodyType = RigidbodyType2D.Static;
+            }          
         }
-        else 
-        {
-            Vector2 direction = distanceJoint.connectedAnchor - distanceJoint.anchor;
-            rgbd.velocity = direction;
-        }
+        distanceJoint.anchor = spring.anchor;
     }
 }

@@ -13,7 +13,7 @@ public class PrefabGrappin : MonoBehaviour
 
     #region Object/component
     [HideInInspector] Rigidbody2D rgbd;
-    [HideInInspector] GameObject objectGrabed;
+    [HideInInspector] public GameObject objectGrabed;
     [HideInInspector] public Rigidbody2D objectGrabedRgbd;
     [HideInInspector] Vector2 PointImpact;
     [SerializeField] Transform GrabPoint;
@@ -31,38 +31,42 @@ public class PrefabGrappin : MonoBehaviour
     {
         if (!Grappin.isCanceling)
         {
-            if (isGrabing)
-            {
-                transform.position = PointImpact;
-                
-            }
-            else if ((!Grappin.isGrabling) && (!Grappin.isRetracting) && (!Grappin.isCanceling))
+            if ((!Grappin.isGrabling) && (!Grappin.isRetracting) && (!Grappin.isCanceling))
             {
                 transform.position = GrabPoint.position;
             }
         }
-
     }
 
+    private void SetGrab(GameObject collision)
+    {
+        isGrabing = true;
+        rgbd.velocity = new Vector2(0.0f, 0.0f);
+        PointImpact = transform.position;
+        Grappin.Grab.transform.SetParent(collision.transform);
+        Grappin.isLaunched = false;
+        
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Grappable"))
+        if (collision.CompareTag("Grappable") && Grappin.isLaunched)
         {
-            isGrabing = true;
-            rgbd.velocity = new Vector2 (0.0f,0.0f);
-            PointImpact = transform.position;
-            objectGrabed = collision.gameObject;
-            if (objectGrabed.GetComponent<Rigidbody2D>() == null)
-            {
-                moveObject = false;
-            }
-            else
-            {
-                moveObject = true;
-                objectGrabedRgbd = objectGrabed.GetComponent<Rigidbody2D>();
-            }
-            Grappin.isLaunched = false;
-            Grappin.SetDistanceJointPosition(PointImpact);
+            SetGrab(collision.gameObject);
+            moveObject = false;
+
+            Grappin.GrabRgbd.bodyType = RigidbodyType2D.Static;
+            Grappin.distanceJoint.enabled = true;
+        }        
+
+        else if (collision.CompareTag("Object") && (Grappin.isLaunched))
+        {
+            SetGrab(collision.gameObject);
+            moveObject = true;
+            objectGrabedRgbd = collision.gameObject.GetComponent<Rigidbody2D>();
+            Grappin.spring.connectedBody = objectGrabedRgbd;
+            Grappin.distanceJoint.connectedBody = objectGrabedRgbd;
+            Grappin.distanceJoint.enabled = true;
+            Grappin.Grab.SetActive(false);
         }
     }
 

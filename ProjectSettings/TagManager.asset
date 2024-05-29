@@ -8,6 +8,8 @@ TagManager:
   - Ground
   - LeftWall
   - RightWall
+  - Grab
+  - Object
   layers:
   - Default
   - TransparentFX
