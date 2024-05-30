@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Rewired;
-using UnityEngine.UI;
 
 public class Grappin : MonoBehaviour
 {
@@ -56,23 +54,22 @@ public class Grappin : MonoBehaviour
 
         distanceJoint = Body.GetComponent<DistanceJoint2D>();
         distanceJoint.enabled = false;
-        distanceJoint.anchor = new Vector2(0.5f,0.0f);
+        distanceJoint.anchor = new Vector2(0.0f,0.0f);
         distanceJoint.connectedBody = GrabRgbd;
-        distanceJoint.connectedAnchor = new Vector2(.0f, 0.0f);
+        distanceJoint.connectedAnchor = new Vector2(0.0f, 0.0f);
 
         spring = Body.GetComponent<SpringJoint2D>();
         spring.enabled = false;
         spring.connectedAnchor = new Vector2(0.0f, 0.0f);
         spring.connectedBody = GrabRgbd;
         spring.distance = 0.0f;
-        spring.anchor = new Vector2(0.5f, 0.0f);
+        spring.anchor = new Vector2(0.0f, 0.0f);
     }
 
     // Update is called once per frame
     void Update()
     {
         Inputs();
-        DirectionGrappin();
         if (isGrabling)
         {
             SetLinePosition();
@@ -93,23 +90,10 @@ public class Grappin : MonoBehaviour
         line.SetPosition(1, Grab.transform.position);
     }
 
-    /*
-    public void SetDistanceJointPosition(Vector2 PositionB)
+    private void Inputs()
     {
-        distanceJoint.connectedAnchor = PositionB;
-        distanceJoint.enabled = true;       
-    }
-    */
-private void Inputs()
-    {
-        // lance le grappin quand il est ranger
-        if ((!isGrabling) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
-        {
-            StartGrable();
-        }
-
         // retract le grappin petit a petit tant que la touche est pressé
-        else if ((isGrabling) && (!isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
+        if ((isGrabling) && (!isLaunched) && (player.GetButtonDown("Fire")) && (!isRetracting) && (!isCanceling))
         {
             spring.enabled = true;
             isRetracting = true;
@@ -129,24 +113,24 @@ private void Inputs()
             StartCoroutine(Cancel());
         }
     }
-
-    private void DirectionGrappin() 
+    
+    public void DirectionGrappin(Vector2 direction) 
     {
+        /*
         mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         direction = mousePos - (Vector2)transform.position;
+        */
         gameObject.transform.right = direction;
     }
-    private void StartGrable()
+    
+    public void StartGrable(Vector2 direction)
     {
         isLaunched = true;
         isGrabling = true;
         line.enabled = true;
 
-        //Vector2 direction = Aim.transform.position - transform.position;
-
         Grab.transform.Rotate(0.0f, 0.0f, Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg);
         GrabRgbd.velocity = direction * grappleShootSpeed;
-        Debug.Log("Start");
     }
 
     private void MaxDistance()
@@ -160,6 +144,10 @@ private void Inputs()
         }
     }
 
+    public void StartCancel()
+    {
+        StartCoroutine(Cancel());
+    }
     IEnumerator Cancel()
     {
         if (prefab.moveObject)
@@ -198,7 +186,6 @@ private void Inputs()
         line.enabled = false;
         isCanceling = false;
         isGrabling = false;
-        Debug.Log("Cancel");
     }
 
     private void Retract()

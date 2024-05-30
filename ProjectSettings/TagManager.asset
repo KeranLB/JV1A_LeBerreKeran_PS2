@@ -10,6 +10,8 @@ TagManager:
   - RightWall
   - Grab
   - Object
+  - BreakWall
+  - Ennemi
   layers:
   - Default
   - TransparentFX

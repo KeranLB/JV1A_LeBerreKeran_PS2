@@ -1,8 +1,4 @@
-using Rewired;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class PrefabGrappin : MonoBehaviour
 {
@@ -59,6 +55,17 @@ public class PrefabGrappin : MonoBehaviour
         }        
 
         else if (collision.CompareTag("Object") && (Grappin.isLaunched))
+        {
+            SetGrab(collision.gameObject);
+            moveObject = true;
+            objectGrabedRgbd = collision.gameObject.GetComponent<Rigidbody2D>();
+            Grappin.spring.connectedBody = objectGrabedRgbd;
+            Grappin.distanceJoint.connectedBody = objectGrabedRgbd;
+            Grappin.distanceJoint.enabled = true;
+            Grappin.Grab.SetActive(false);
+        }
+
+        else if (collision.CompareTag("BreakWall") && collision.gameObject.GetComponent<Rigidbody2D>().bodyType == RigidbodyType2D.Dynamic)
         {
             SetGrab(collision.gameObject);
             moveObject = true;
