@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Arme : MonoBehaviour
@@ -23,6 +20,7 @@ public class Arme : MonoBehaviour
         {
             Rigidbody2D rgbd = collision.gameObject.GetComponent<Rigidbody2D>();
             rgbd.bodyType = RigidbodyType2D.Dynamic;
+            collision.tag = "Object";
         }
         if (collision.CompareTag("Ennemi"))
         {

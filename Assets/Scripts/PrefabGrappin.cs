@@ -45,7 +45,7 @@ public class PrefabGrappin : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Grappable") && Grappin.isLaunched)
+        if ( ( (collision.CompareTag("Grappable")) || (collision.CompareTag("BreakWall")) ) && (Grappin.isLaunched) )
         {
             SetGrab(collision.gameObject);
             moveObject = false;
@@ -64,7 +64,7 @@ public class PrefabGrappin : MonoBehaviour
             Grappin.distanceJoint.enabled = true;
             Grappin.Grab.SetActive(false);
         }
-
+        /*
         else if (collision.CompareTag("BreakWall") && collision.gameObject.GetComponent<Rigidbody2D>().bodyType == RigidbodyType2D.Dynamic)
         {
             SetGrab(collision.gameObject);
@@ -75,6 +75,7 @@ public class PrefabGrappin : MonoBehaviour
             Grappin.distanceJoint.enabled = true;
             Grappin.Grab.SetActive(false);
         }
+        */
     }
 
 }

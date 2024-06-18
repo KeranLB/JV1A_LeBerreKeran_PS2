@@ -1,75 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GroundCheck : MonoBehaviour
 {
-    [SerializeField] GameObject Player;
-    [HideInInspector] move move;
+    [SerializeField] Transform leftCheckGrounded;
+    [SerializeField] Transform rightCheckGrounded;
 
-    private void Start()
-    {
-        move = Player.GetComponent<move>();
-    }
+    [SerializeField] move move;
+
+    [HideInInspector] public bool isGrounded;
     private void Update()
     {
-        transform.localPosition = new Vector2(0f, 0f);
-    }
-    /*
-    private void OnTriggerStay2D(Collider2D collision)
-    {
-        Debug.Log("entre en collsion");
-        if (collision.CompareTag("LeftWall"))
-        {
-            move.isLeftWalled = true;
-        }
-
-        else if (collision.CompareTag("RightWall"))
-        {
-            move.isRightWalled = true;
-        }
-
-        else
-        {
-            Debug.Log("est greounded");
-            move.isGrounded = true;
-        }
-    }
-    */
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("entre en collsion");
-        if (collision.CompareTag("LeftWall"))
-        {
-            move.isLeftWalled = true;
-        }
-
-        else if (collision.CompareTag("RightWall"))
-        {
-            move.isRightWalled = true;
-        }
-
-        else // if (collision.CompareTag("Gorund") && collision.CompareTag("Object") && collision.CompareTag("BreakWall"))
-        {
-            Debug.Log("est greounded");
-            move.isGrounded = true;
-        }
-    }
-    
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("LeftWall"))
-        {
-            move.isLeftWalled = false;
-        }
-        else if (collision.CompareTag("RightWall"))
-        {
-            move.isRightWalled = false;
-        }
-        else
-        {
-            move.isGrounded = false;
-        }
-    }
-    
+        move.isGrounded = Physics2D.OverlapArea(leftCheckGrounded.position, rightCheckGrounded.position);
+    }    
 }
